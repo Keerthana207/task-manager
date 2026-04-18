@@ -6,8 +6,8 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// MongoDB connect
-mongoose.connect("mongodb://127.0.0.1:27017/taskDB")
+// ✅ MongoDB Atlas connect (FIXED with DB name)
+mongoose.connect("mongodb+srv://admin:12345@cluster0.2u6p4yy.mongodb.net/taskDB")
 .then(() => console.log("MongoDB Connected"))
 .catch(err => console.log(err));
 
@@ -18,23 +18,35 @@ const taskSchema = new mongoose.Schema({
 
 const Task = mongoose.model("Task", taskSchema);
 
-// GET
+// GET - fetch tasks
 app.get("/tasks", async (req, res) => {
-    const tasks = await Task.find();
-    res.json(tasks);
+    try {
+        const tasks = await Task.find();
+        res.json(tasks);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// POST
+// POST - add task
 app.post("/tasks", async (req, res) => {
-    const newTask = new Task({ name: req.body.name });
-    await newTask.save();
-    res.json(newTask);
+    try {
+        const newTask = new Task({ name: req.body.name });
+        await newTask.save();
+        res.json(newTask);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// DELETE
+// DELETE - remove task
 app.delete("/tasks/:id", async (req, res) => {
-    await Task.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
+    try {
+        await Task.findByIdAndDelete(req.params.id);
+        res.json({ message: "Deleted" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Server run

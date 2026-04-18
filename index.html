@@ -8,13 +8,21 @@
             text-align: center;
             margin-top: 50px;
         }
+
         input {
             padding: 10px;
+            width: 200px;
         }
+
         button {
             padding: 10px;
             margin-left: 5px;
+            background-color: green;
+            color: white;
+            border: none;
+            cursor: pointer;
         }
+
         ul {
             list-style: none;
             padding: 0;
@@ -35,43 +43,53 @@
 <ul id="taskList"></ul>
 
 <script>
-const API = "http://localhost:5000/tasks";
+const API = "https://task-manager-cw22.onrender.com/tasks";
 
+// Fetch all tasks
 function fetchTasks() {
     fetch(API)
     .then(res => res.json())
     .then(data => {
         const list = document.getElementById("taskList");
         list.innerHTML = "";
+
         data.forEach(task => {
             const li = document.createElement("li");
+
             li.innerHTML = `
                 ${task.name}
                 <button onclick="deleteTask('${task._id}')">Delete</button>
             `;
+
             list.appendChild(li);
         });
     });
 }
 
+// Add task
 function addTask() {
     const name = document.getElementById("taskInput").value;
+
+    if (name.trim() === "") return;
 
     fetch(API, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name })
-    }).then(() => {
+    })
+    .then(() => {
         fetchTasks();
         document.getElementById("taskInput").value = "";
     });
 }
 
+// Delete task
 function deleteTask(id) {
     fetch(`${API}/${id}`, { method: "DELETE" })
     .then(() => fetchTasks());
 }
 
+// Initial load
 fetchTasks();
 </script>
 
