@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager</title>
+    <style>
+        body {
+            font-family: Arial;
+            text-align: center;
+            margin-top: 50px;
+        }
+        input {
+            padding: 10px;
+        }
+        button {
+            padding: 10px;
+            margin-left: 5px;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Task Manager</h2>
+
+<input type="text" id="taskInput" placeholder="Enter task">
+<button onclick="addTask()">Add</button>
+
+<ul id="taskList"></ul>
+
+<script>
+const API = "http://localhost:5000/tasks";
+
+function fetchTasks() {
+    fetch(API)
+    .then(res => res.json())
+    .then(data => {
+        const list = document.getElementById("taskList");
+        list.innerHTML = "";
+        data.forEach(task => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+                ${task.name}
+                <button onclick="deleteTask('${task._id}')">Delete</button>
+            `;
+            list.appendChild(li);
+        });
+    });
+}
+
+function addTask() {
+    const name = document.getElementById("taskInput").value;
+
+    fetch(API, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name })
+    }).then(() => {
+        fetchTasks();
+        document.getElementById("taskInput").value = "";
+    });
+}
+
+function deleteTask(id) {
+    fetch(`${API}/${id}`, { method: "DELETE" })
+    .then(() => fetchTasks());
+}
+
+fetchTasks();
+</script>
+
+</body>
+</html>
